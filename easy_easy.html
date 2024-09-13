@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca de Estados e Cidades</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+        }
+        #estado {
+            margin-top: 20px;
+            font-size: 16px;
+            padding: 10px;
+        }
+        #cidade-list {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .cidade-item {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Selecione um Estado e veja as Cidades</h1>
+
+    <label for="estado">Escolha o Estado:</label>
+    <select id="estado">
+        <option value="">Selecione um estado</option>
+    </select>
+
+    <h2>Cidades:</h2>
+    <ul id="cidade-list">
+       
+    </ul>
+
+    <script>
+       
+        async function fetchEstados() {
+            const api = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados');
+            const estados = await api.json();
+            const estadoSelect = document.getElementById('estado');
+            
+           
+            estados.forEach(estado => {
+                const option = document.createElement('option');
+                option.value = estado.id;
+                option.textContent = estado.nome;
+                estadoSelect.appendChild(option);
+            });
+        }
+
+      
+        async function fetchCidades(estadoId) {
+            const api = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
+            const cidades = await api.json();
+            const lista_de_cidades = document.getElementById('cidade-list');
+            
+           
+            lista_de_cidades.innerHTML = '';
+
+            
+            cidades.forEach(cidade => {
+                const li = document.createElement('li');
+                li.classList.add('cidade-item');
+                li.textContent = cidade.nome;
+                lista_de_cidades.appendChild(li);
+            });
+        }
+
+        
+        document.getElementById('estado').addEventListener('change', function() {
+            const estadoId = this.value;
+            if (estadoId) {
+                fetchCidades(estadoId); 
+            } else {
+                document.getElementById('cidade-list').innerHTML = ''; 
+            }
+        });
+
+       
+        fetchEstados();
+    </script>
+</body>
+</html>
